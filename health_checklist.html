@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🩺 Health Pre-Check | ประเมินอาการก่อนพบแพทย์</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c0f;
+    --surface: #111318;
+    --card: #161b22;
+    --border: #21262d;
+    --border-active: #30363d;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --green: #3fb950;
+    --green-dim: #1a3a1f;
+    --yellow: #d29922;
+    --yellow-dim: #3d2e00;
+    --red: #f85149;
+    --red-dim: #3d1a1a;
+    --blue: #58a6ff;
+    --blue-dim: #0d2044;
+    --orange: #db6d28;
+    --orange-dim: #3d1f00;
+    --purple: #bc8cff;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans Thai', sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--sans);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* GRID BACKGROUND */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(88,166,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(88,166,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 20px 80px;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    animation: fadeDown 0.6s ease;
+  }
+
+  .header-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--blue-dim);
+    border: 1px solid rgba(88,166,255,0.3);
+    color: var(--blue);
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 2px;
+    padding: 6px 14px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+  }
+
+  .header h1 {
+    font-size: clamp(24px, 5vw, 36px);
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+    margin-bottom: 8px;
+  }
+
+  .header h1 span { color: var(--blue); }
+
+  .header p {
+    color: var(--text-muted);
+    font-size: 14px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  /* PROGRESS DASHBOARD */
+  .dashboard {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 32px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 16px;
+    animation: fadeUp 0.5s ease 0.1s both;
+  }
+
+  .dash-stat {
+    text-align: center;
+  }
+
+  .dash-stat .value {
+    font-family: var(--mono);
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1;
+    margin-bottom: 4px;
+    transition: all 0.3s ease;
+  }
+
+  .dash-stat .label {
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .dash-stat.total .value { color: var(--text); }
+  .dash-stat.done .value { color: var(--green); }
+  .dash-stat.warn .value { color: var(--yellow); }
+  .dash-stat.danger .value { color: var(--red); }
+
+  /* PROGRESS BAR */
+  .progress-wrap {
+    margin-bottom: 32px;
+    animation: fadeUp 0.5s ease 0.15s both;
+  }
+
+  .progress-bar-bg {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--blue), var(--green));
+    border-radius: 4px;
+    transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 0%;
+  }
+
+  .progress-label {
+    display: flex;
+    justify-content: space-between;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+  }
+
+  /* SECTION */
+  .section {
+    margin-bottom: 24px;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px 10px 0 0;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.2s;
+  }
+
+  .section-header:hover { background: var(--card); }
+
+  .section-icon {
+    font-size: 18px;
+    width: 28px;
+    text-align: center;
+  }
+
+  .section-title {
+    font-weight: 600;
+    font-size: 14px;
+    flex: 1;
+  }
+
+  .section-count {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--text-muted);
+    background: var(--border);
+    padding: 2px 8px;
+    border-radius: 10px;
+  }
+
+  .section-chevron {
+    color: var(--text-muted);
+    font-size: 12px;
+    transition: transform 0.2s;
+  }
+
+  .section.collapsed .section-chevron { transform: rotate(-90deg); }
+
+  .section-body {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, opacity 0.3s ease;
+    max-height: 2000px;
+    opacity: 1;
+  }
+
+  .section.collapsed .section-body {
+    max-height: 0;
+    opacity: 0;
+  }
+
+  /* CHECKLIST ITEM */
+  .check-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: background 0.15s;
+    position: relative;
+  }
+
+  .check-item:last-child { border-bottom: none; }
+  .check-item:hover { background: rgba(88,166,255,0.04); }
+
+  .check-item.checked { background: rgba(63,185,80,0.05); }
+  .check-item.flagged { background: rgba(248,81,73,0.05); }
+  .check-item.noted { background: rgba(210,153,34,0.05); }
+
+  .checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--border-active);
+    border-radius: 4px;
+    flex-shrink: 0;
+    margin-top: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: all 0.2s;
+    background: var(--surface);
+  }
+
+  .check-item.checked .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+    color: #000;
+  }
+
+  .check-item.flagged .checkbox {
+    background: var(--red);
+    border-color: var(--red);
+    color: #fff;
+  }
+
+  .check-item.noted .checkbox {
+    background: var(--yellow);
+    border-color: var(--yellow);
+    color: #000;
+  }
+
+  .check-content { flex: 1; }
+
+  .check-label {
+    font-size: 13.5px;
+    font-weight: 500;
+    margin-bottom: 2px;
+    transition: color 0.2s;
+  }
+
+  .check-item.checked .check-label { color: var(--text-muted); text-decoration: line-through; }
+
+  .check-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  .check-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 0;
+    flex-shrink: 0;
+  }
+
+  .btn-action {
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-family: var(--mono);
+    cursor: pointer;
+    border: 1px solid;
+    transition: all 0.15s;
+    background: transparent;
+  }
+
+  .btn-ok {
+    border-color: rgba(63,185,80,0.4);
+    color: var(--green);
+  }
+  .btn-ok:hover { background: var(--green-dim); }
+
+  .btn-flag {
+    border-color: rgba(248,81,73,0.4);
+    color: var(--red);
+  }
+  .btn-flag:hover { background: var(--red-dim); }
+
+  .btn-note {
+    border-color: rgba(210,153,34,0.4);
+    color: var(--yellow);
+  }
+  .btn-note:hover { background: var(--yellow-dim); }
+
+  /* SEVERITY BADGE */
+  .severity {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 3px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+    vertical-align: middle;
+  }
+
+  .sev-high { background: var(--red-dim); color: var(--red); border: 1px solid rgba(248,81,73,0.3); }
+  .sev-med { background: var(--yellow-dim); color: var(--yellow); border: 1px solid rgba(210,153,34,0.3); }
+  .sev-low { background: var(--blue-dim); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+
+  /* NOTE INPUT */
+  .note-box {
+    display: none;
+    padding: 10px 20px 14px 52px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+  }
+
+  .note-box.visible { display: block; }
+
+  .note-input {
+    width: 100%;
+    background: var(--card);
+    border: 1px solid var(--border-active);
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-family: var(--sans);
+    font-size: 13px;
+    resize: none;
+    height: 60px;
+    transition: border-color 0.2s;
+  }
+
+  .note-input:focus {
+    outline: none;
+    border-color: var(--blue);
+  }
+
+  /* ALERT BOX */
+  .alert {
+    border-radius: 10px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+    border: 1px solid;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    animation: fadeUp 0.5s ease both;
+  }
+
+  .alert-icon { font-size: 20px; flex-shrink: 0; }
+  .alert-text { font-size: 13px; line-height: 1.6; }
+  .alert-text strong { font-size: 14px; display: block; margin-bottom: 4px; }
+
+  .alert-red { background: var(--red-dim); border-color: rgba(248,81,73,0.3); }
+  .alert-yellow { background: var(--yellow-dim); border-color: rgba(210,153,34,0.3); }
+  .alert-green { background: var(--green-dim); border-color: rgba(63,185,80,0.3); }
+  .alert-blue { background: var(--blue-dim); border-color: rgba(88,166,255,0.3); }
+
+  /* SUMMARY PANEL */
+  .summary-panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-top: 32px;
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+
+  .summary-panel.visible { display: block; }
+
+  .summary-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .summary-flags {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 16px;
+  }
+
+  .flag-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 14px;
+    background: var(--red-dim);
+    border: 1px solid rgba(248,81,73,0.2);
+    border-radius: 6px;
+    font-size: 13px;
+  }
+
+  .flag-item span:first-child { font-size: 16px; }
+
+  .export-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--blue);
+    color: #000;
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 1px;
+    transition: all 0.2s;
+    margin-top: 16px;
+  }
+
+  .export-btn:hover {
+    background: #79beff;
+    transform: translateY(-1px);
+  }
+
+  /* ANIMATIONS */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* MOBILE */
+  @media (max-width: 600px) {
+    .dashboard { grid-template-columns: 1fr 1fr; }
+    .check-item { flex-wrap: wrap; }
+    .check-actions { width: 100%; margin-top: 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-badge">🩺 Pre-Visit Health Checklist</div>
+    <h1>ประเมินอาการ<span>ก่อนพบแพทย์</span></h1>
+    <p>ตอบทุกข้อให้ครบ เพื่อให้แพทย์วินิจฉัยได้แม่นยำและรวดเร็วขึ้น</p>
+  </div>
+
+  <!-- ALERT -->
+  <div class="alert alert-red" style="animation-delay:0.1s">
+    <div class="alert-icon">🚨</div>
+    <div class="alert-text">
+      <strong>หากมีอาการเหล่านี้ → ไป ER ทันที ไม่ต้องรอ!</strong>
+      เจ็บหน้าอกรุนแรง · หายใจไม่ออก · แขน/ขาอ่อนแรงกะทันหัน · หมดสติ · ปวดหัวรุนแรงที่สุดในชีวิต
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div class="dashboard">
+    <div class="dash-stat total">
+      <div class="value" id="stat-total">0</div>
+      <div class="label">Total Items</div>
+    </div>
+    <div class="dash-stat done">
+      <div class="value" id="stat-done">0</div>
+      <div class="label">✅ ปกติ</div>
+    </div>
+    <div class="dash-stat warn">
+      <div class="value" id="stat-noted">0</div>
+      <div class="label">⚠️ สังเกต</div>
+    </div>
+    <div class="dash-stat danger">
+      <div class="value" id="stat-flag">0</div>
+      <div class="label">🚨 แจ้งแพทย์</div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-label">
+      <span>COMPLETION</span>
+      <span id="progress-pct">0%</span>
+    </div>
+    <div class="progress-bar-bg">
+      <div class="progress-bar-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <!-- ===== SECTIONS ===== -->
+
+  <!-- SECTION 1: อาการหลัก -->
+  <div class="section" style="animation-delay:0.2s">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">🫀</div>
+      <div class="section-title">อาการหลักที่รู้สึก</div>
+      <div class="section-count" id="count-0">0/0</div>
+      <div class="section-chevron">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="check-item" data-section="0">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดหน้าอก / แน่นหน้าอก <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">ปวดแบบไหน? กดดัน/บีบ/แปล๊บ | เกิดตอนไหน? ขณะพัก หรือออกแรง</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม เช่น ความถี่ ระยะเวลา..."></textarea></div>
+
+      <div class="check-item" data-section="0">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดหลังร้าวไปไหล่ / แขน <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">ร้าวไปด้านไหน? ซ้าย/ขวา/ทั้งสอง | ปวดตลอดหรือเป็นพักๆ</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="0">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">เจ็บแปล๊บลงแขนหรือเท้า <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">เกิดบ่อยแค่ไหน? มีอาการชาร่วมด้วยไหม?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="0">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">กรดไหลย้อน / แสบกลางอก <span class="severity sev-med">MED</span></div>
+          <div class="check-sub">เกิดบ่อยแค่ไหน? หลังกินข้าว หรือตอนนอน? มีรสเปรี้ยวในคอไหม?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 รุนแรง</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="0">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">เหนื่อยง่าย / หายใจไม่เต็มอิ่ม <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">เกิดตอนออกแรงหรือขณะพัก? เป็นมานานแค่ไหนแล้ว?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- SECTION 2: อาการเสริม -->
+  <div class="section" style="animation-delay:0.25s">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">🧠</div>
+      <div class="section-title">อาการระบบประสาท & ทั่วไป</div>
+      <div class="section-count" id="count-1">0/0</div>
+      <div class="section-chevron">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="check-item" data-section="1">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ชาหรืออ่อนแรงที่แขน/ขา <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">ชาตรงไหน? ตลอดเวลาหรือเป็นพักๆ? มีอ่อนแรงร่วมไหม?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="1">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดหัว / เวียนหัว <span class="severity sev-med">MED</span></div>
+          <div class="check-sub">ปวดแบบไหน? บีบรอบศีรษะ / ตุบๆ / เวียนบ้าน? เกิดตอนไหน?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 รุนแรง</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="1">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">นอนไม่หลับ / ตื่นกลางดึก <span class="severity sev-low">LOW</span></div>
+          <div class="check-sub">นอนหลับได้กี่ชั่วโมง? ตื่นบ่อยไหม? รู้สึกพักผ่อนเพียงพอไหม?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 รุนแรง</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="1">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ใจสั่น / หัวใจเต้นผิดปกติ <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">เต้นเร็ว / ข้ามจังหวะ / แรงผิดปกติ? เกิดขณะพักหรือออกแรง?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- SECTION 3: ระบบทางเดินอาหาร -->
+  <div class="section" style="animation-delay:0.3s">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">🫁</div>
+      <div class="section-title">ระบบทางเดินอาหาร & ตับ</div>
+      <div class="section-count" id="count-2">0/0</div>
+      <div class="section-chevron">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="check-item" data-section="2">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">คลื่นไส้ / อาเจียน <span class="severity sev-med">MED</span></div>
+          <div class="check-sub">เกิดบ่อยแค่ไหน? หลังกินอาหาร หรือตอนไหน? มีเลือดในอาเจียนไหม?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 รุนแรง</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="2">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดท้องส่วนบน / จุกใต้ชายโครงขวา <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">สำคัญมาก! อาจเกี่ยวกับตับจากประวัติดื่มแอลกอฮอล์ | ปวดตลอดหรือเป็นพักๆ?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="2">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">น้ำหนักลดโดยไม่ตั้งใจ <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">ลดในช่วงกี่เดือน? ลดไปกี่กิโล? โดยไม่ได้ควบคุมอาหารหรือออกกำลังกาย?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบ้าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+
+      <div class="check-item" data-section="2">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ตาขาว / ผิวหนังเหลือง (ดีซ่าน) <span class="severity sev-high">HIGH</span></div>
+          <div class="check-sub">ดูที่ตาขาวในแสงธรรมชาติ | สีปัสสาวะเข้มหรือสีชาไหม?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ สงสัย</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- SECTION 4: ประวัติสุขภาพ -->
+  <div class="section" style="animation-delay:0.35s">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">📋</div>
+      <div class="section-title">ประวัติสุขภาพ & พฤติกรรม</div>
+      <div class="section-count" id="count-3">0/0</div>
+      <div class="section-chevron">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="check-item" data-section="3">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ยาที่กินอยู่ปัจจุบัน <span class="severity sev-med">MED</span></div>
+          <div class="check-sub">รวมถึงยาชุด ยาสมุนไพร วิตามิน อาหารเสริม | จดชื่อยา + ขนาดยาให้ครบ</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีบางอย่าง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีหลายตัว</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="ระบุชื่อยาที่กินอยู่..."></textarea></div>
+
+      <div class="check-item" data-section="3">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ประวัติโรคในครอบครัว <span class="severity sev-med">MED</span></div>
+          <div class="check-sub">โรคหัวใจ / มะเร็ง / เบาหวาน / ความดัน / โรคตับ ในพ่อแม่หรือพี่น้อง</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ไม่มี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ ไม่แน่ใจ</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 มีชัด</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="ระบุโรคที่พบในครอบครัว..."></textarea></div>
+
+      <div class="check-item" data-section="3">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ตรวจสุขภาพประจำปีครั้งล่าสุด <span class="severity sev-low">LOW</span></div>
+          <div class="check-sub">ตรวจเมื่อไหร่? ผล Cholesterol / Blood Sugar / Liver Function เป็นอย่างไร?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ปีที่แล้ว</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ 2-3 ปีก่อน</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 ไม่เคย</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="ผลตรวจที่ผิดปกติ..."></textarea></div>
+
+      <div class="check-item" data-section="3">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ระดับความเครียด / การพักผ่อน <span class="severity sev-low">LOW</span></div>
+          <div class="check-sub">ความเครียดในช่วงนี้ระดับไหน? นอนหลับได้กี่ชั่วโมงเฉลี่ย?</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ ดี</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ ปานกลาง</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 เครียดมาก</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="รายละเอียดเพิ่มเติม..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- SECTION 5: การเตรียมตัวก่อนไป -->
+  <div class="section" style="animation-delay:0.4s">
+    <div class="section-header" onclick="toggleSection(this)">
+      <div class="section-icon">📦</div>
+      <div class="section-title">สิ่งที่ต้องเตรียมก่อนไปพบแพทย์</div>
+      <div class="section-count" id="count-4">0/0</div>
+      <div class="section-chevron">▼</div>
+    </div>
+    <div class="section-body">
+      <div class="check-item" data-section="4">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">จดอาการ + ระยะเวลาที่เกิดให้ชัดเจน <span class="severity sev-med">MED</span></div>
+          <div class="check-sub">เช่น "ปวดหลังร้าวไหล่ซ้ายมา 3 สัปดาห์ เกิดทุกวัน ตอนเช้า"</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ เตรียมแล้ว</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ บางส่วน</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 ยังไม่ได้</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="จดอาการสั้นๆ ที่นี่..."></textarea></div>
+
+      <div class="check-item" data-section="4">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">เตรียมยาและอาหารเสริมที่กินอยู่ <span class="severity sev-low">LOW</span></div>
+          <div class="check-sub">นำกล่องยาไปด้วย หรือถ่ายรูปฉลาก เพื่อให้แพทย์เช็ค Drug Interaction</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ เตรียมแล้ว</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ บางส่วน</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 ยังไม่ได้</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="รายการยาที่จะนำไป..."></textarea></div>
+
+      <div class="check-item" data-section="4">
+        <div class="checkbox"></div>
+        <div class="check-content">
+          <div class="check-label">ผลตรวจสุขภาพเก่า (ถ้ามี) <span class="severity sev-low">LOW</span></div>
+          <div class="check-sub">ผล Lab / X-Ray / EKG เก่า ช่วยให้แพทย์เปรียบเทียบได้ทันที</div>
+        </div>
+        <div class="check-actions">
+          <button class="btn-action btn-ok" onclick="setStatus(event,'ok')">✓ มีและนำไป</button>
+          <button class="btn-action btn-note" onclick="setStatus(event,'note')">⚠ มีแต่หาไม่เจอ</button>
+          <button class="btn-action btn-flag" onclick="setStatus(event,'flag')">🚨 ไม่มี</button>
+        </div>
+      </div>
+      <div class="note-box"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    </div>
+  </div>
+
+  <!-- SUMMARY PANEL -->
+  <div class="summary-panel" id="summary-panel">
+    <div class="summary-title">⚡ PRIORITY — แจ้งแพทย์ก่อน</div>
+    <div class="summary-flags" id="summary-flags"></div>
+    <div class="alert alert-yellow" style="margin-bottom:0; margin-top: 0;">
+      <div class="alert-icon">💡</div>
+      <div class="alert-text">
+        <strong>เคล็ดลับ: พูดกับแพทย์อย่างไร?</strong>
+        เริ่มด้วย <em>"ผมมีอาการ [สิ่งที่ flag] มาประมาณ [ระยะเวลา] ครับ และยังมี [อาการอื่น] ร่วมด้วย"</em>
+      </div>
+    </div>
+    <button class="export-btn" onclick="exportSummary()">📋 COPY สรุปเพื่อแจ้งแพทย์</button>
+  </div>
+
+</div>
+
+<script>
+  // DATA STORE
+  const states = {};
+  const labels = {};
+  let totalItems = 0;
+
+  // INIT
+  document.querySelectorAll('.check-item').forEach((item, idx) => {
+    states[idx] = 'none';
+    labels[idx] = item.querySelector('.check-label').textContent.trim();
+    totalItems++;
+  });
+
+  document.getElementById('stat-total').textContent = totalItems;
+
+  function setStatus(e, status) {
+    e.stopPropagation();
+    const item = e.target.closest('.check-item');
+    const noteBox = item.nextElementSibling;
+    const checkbox = item.querySelector('.checkbox');
+    const idx = [...document.querySelectorAll('.check-item')].indexOf(item);
+
+    // Toggle off
+    if (states[idx] === status) {
+      states[idx] = 'none';
+      item.classList.remove('checked','flagged','noted');
+      checkbox.textContent = '';
+      if (noteBox && noteBox.classList.contains('note-box')) {
+        noteBox.classList.remove('visible');
+      }
+    } else {
+      states[idx] = status;
+      item.classList.remove('checked','flagged','noted');
+      if (status === 'ok') {
+        item.classList.add('checked');
+        checkbox.textContent = '✓';
+        if (noteBox && noteBox.classList.contains('note-box')) noteBox.classList.remove('visible');
+      } else if (status === 'flag') {
+        item.classList.add('flagged');
+        checkbox.textContent = '!';
+        if (noteBox && noteBox.classList.contains('note-box')) noteBox.classList.add('visible');
+      } else if (status === 'note') {
+        item.classList.add('noted');
+        checkbox.textContent = '~';
+        if (noteBox && noteBox.classList.contains('note-box')) noteBox.classList.add('visible');
+      }
+    }
+
+    updateStats();
+    updateSectionCounts();
+    updateSummary();
+  }
+
+  function updateStats() {
+    const done = Object.values(states).filter(s => s === 'ok').length;
+    const noted = Object.values(states).filter(s => s === 'note').length;
+    const flagged = Object.values(states).filter(s => s === 'flag').length;
+    const answered = done + noted + flagged;
+
+    document.getElementById('stat-done').textContent = done;
+    document.getElementById('stat-noted').textContent = noted;
+    document.getElementById('stat-flag').textContent = flagged;
+
+    const pct = Math.round((answered / totalItems) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+  }
+
+  function updateSectionCounts() {
+    document.querySelectorAll('.section').forEach((section, si) => {
+      const items = section.querySelectorAll('.check-item');
+      const answered = [...items].filter(item => {
+        const idx = [...document.querySelectorAll('.check-item')].indexOf(item);
+        return states[idx] !== 'none';
+      }).length;
+      const countEl = section.querySelector('[id^="count-"]');
+      if (countEl) countEl.textContent = `${answered}/${items.length}`;
+    });
+  }
+
+  function updateSummary() {
+    const flagged = Object.entries(states)
+      .filter(([,s]) => s === 'flag')
+      .map(([idx]) => labels[idx]);
+
+    const panel = document.getElementById('summary-panel');
+    const flagsEl = document.getElementById('summary-flags');
+
+    if (flagged.length > 0) {
+      panel.classList.add('visible');
+      flagsEl.innerHTML = flagged.map(l =>
+        `<div class="flag-item"><span>🚨</span><span>${l}</span></div>`
+      ).join('');
+    } else {
+      panel.classList.remove('visible');
+    }
+  }
+
+  function toggleSection(header) {
+    const section = header.parentElement;
+    section.classList.toggle('collapsed');
+  }
+
+  function exportSummary() {
+    const flagged = Object.entries(states)
+      .filter(([,s]) => s === 'flag')
+      .map(([idx]) => `🚨 ${labels[idx]}`);
+
+    const noted = Object.entries(states)
+      .filter(([,s]) => s === 'note')
+      .map(([idx]) => `⚠️ ${labels[idx]}`);
+
+    const ok = Object.entries(states)
+      .filter(([,s]) => s === 'ok')
+      .map(([idx]) => `✅ ${labels[idx]}`);
+
+    let text = `🩺 สรุปอาการก่อนพบแพทย์\n${'─'.repeat(35)}\n`;
+    if (flagged.length) text += `\n[แจ้งแพทย์ก่อน]\n${flagged.join('\n')}\n`;
+    if (noted.length) text += `\n[สังเกตเพิ่มเติม]\n${noted.join('\n')}\n`;
+    if (ok.length) text += `\n[ไม่มีอาการ]\n${ok.join('\n')}\n`;
+
+    // Add notes
+    const noteInputs = document.querySelectorAll('.note-input');
+    const noteTexts = [];
+    noteInputs.forEach((input, i) => {
+      if (input.value.trim()) {
+        noteTexts.push(`• ${input.value.trim()}`);
+      }
+    });
+    if (noteTexts.length) text += `\n[บันทึกเพิ่มเติม]\n${noteTexts.join('\n')}\n`;
+
+    text += `\n${'─'.repeat(35)}\nGenerated: ${new Date().toLocaleDateString('th-TH')}`;
+
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector('.export-btn');
+      btn.textContent = '✅ COPIED แล้ว!';
+      btn.style.background = '#3fb950';
+      setTimeout(() => {
+        btn.textContent = '📋 COPY สรุปเพื่อแจ้งแพทย์';
+        btn.style.background = 'var(--blue)';
+      }, 2000);
+    });
+  }
+
+  // Stagger animation
+  document.querySelectorAll('.section').forEach((s, i) => {
+    s.style.animationDelay = (0.2 + i * 0.05) + 's';
+  });
+</script>
+</body>
+</html>
