@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🩺 Body Map Checklist — พี่กิตติ</title>
+<link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f0e8;
+  --surface: #ede8df;
+  --card: #ffffff;
+  --border: #d4c9b8;
+  --text: #1a1410;
+  --text-muted: #7a6e60;
+  --text-dim: #b5a898;
+  --red: #c0392b;
+  --red-bg: #fdf0ee;
+  --red-border: #f5c6c0;
+  --amber: #d4780a;
+  --amber-bg: #fef8ee;
+  --amber-border: #f5dfa0;
+  --green: #2d7a3a;
+  --green-bg: #edf7ef;
+  --green-border: #b8dfc0;
+  --blue: #1a5fa8;
+  --blue-bg: #eef4fd;
+  --blue-border: #b8d0f0;
+  --mono: 'Space Mono', monospace;
+  --sans: 'Sarabun', sans-serif;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  min-height: 100vh;
+  background-image:
+    radial-gradient(circle at 20% 20%, rgba(192,57,43,0.04) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(26,95,168,0.04) 0%, transparent 50%);
+}
+
+.container {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+/* === HEADER === */
+.header {
+  margin-bottom: 36px;
+  animation: slideDown 0.5s ease;
+}
+
+.header-tag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.header-tag::before {
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 2px;
+  background: var(--red);
+}
+
+.header h1 {
+  font-size: clamp(22px, 4vw, 32px);
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 6px;
+  color: var(--text);
+}
+
+.header p {
+  color: var(--text-muted);
+  font-size: 14px;
+}
+
+/* === STATS BAR === */
+.stats-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+  animation: slideUp 0.4s ease 0.1s both;
+}
+
+.stat-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 12px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s;
+}
+.stat-box:hover { transform: translateY(-2px); }
+
+.stat-num {
+  font-family: var(--mono);
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+  margin-bottom: 4px;
+  transition: all 0.3s;
+}
+.stat-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+}
+
+.stat-total .stat-num { color: var(--text); }
+.stat-ok .stat-num { color: var(--green); }
+.stat-warn .stat-num { color: var(--amber); }
+.stat-danger .stat-num { color: var(--red); }
+
+/* PROGRESS */
+.progress-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  animation: slideUp 0.4s ease 0.15s both;
+}
+
+.progress-track {
+  flex: 1;
+  height: 5px;
+  background: var(--border);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--amber), var(--red));
+  width: 0%;
+  transition: width 0.4s cubic-bezier(0.4,0,0.2,1);
+}
+
+.progress-pct {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--text-muted);
+  min-width: 36px;
+  text-align: right;
+}
+
+/* === BODY MAP LEGEND === */
+.body-legend {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px 24px;
+  margin-bottom: 28px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.4s ease 0.2s both;
+}
+
+.legend-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+
+.legend-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid;
+  font-size: 13px;
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.leg-red { background: var(--red-bg); border-color: var(--red-border); }
+.leg-red .legend-dot { background: var(--red); }
+.leg-amber { background: var(--amber-bg); border-color: var(--amber-border); }
+.leg-amber .legend-dot { background: var(--amber); }
+.leg-blue { background: var(--blue-bg); border-color: var(--blue-border); }
+.leg-blue .legend-dot { background: var(--blue); }
+.leg-green { background: var(--green-bg); border-color: var(--green-border); }
+.leg-green .legend-dot { background: var(--green); }
+
+/* === ALERT === */
+.alert-er {
+  background: var(--red-bg);
+  border: 1.5px solid var(--red-border);
+  border-left: 4px solid var(--red);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 28px;
+  display: flex;
+  gap: 12px;
+  animation: slideUp 0.4s ease 0.05s both;
+}
+
+.alert-er-icon { font-size: 22px; flex-shrink: 0; }
+.alert-er-body { font-size: 13px; line-height: 1.7; }
+.alert-er-body strong { color: var(--red); font-size: 13px; display: block; margin-bottom: 3px; }
+
+/* === SECTION === */
+.section {
+  margin-bottom: 20px;
+  animation: slideUp 0.4s ease both;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.section-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 22px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s;
+  border-radius: 14px 14px 0 0;
+}
+
+.section.collapsed .section-head {
+  border-radius: 14px;
+}
+
+.section-head:hover { background: var(--surface); }
+
+.sec-zone {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.zone-red { background: var(--red-bg); }
+.zone-amber { background: var(--amber-bg); }
+.zone-blue { background: var(--blue-bg); }
+.zone-green { background: var(--green-bg); }
+
+.sec-info { flex: 1; }
+.sec-title { font-weight: 600; font-size: 14px; }
+.sec-sub { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+.sec-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-weight: 700;
+}
+
+.badge-red { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.badge-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.badge-blue { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+.badge-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-border); }
+
+.sec-count {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.sec-arrow {
+  color: var(--text-dim);
+  font-size: 12px;
+  transition: transform 0.2s;
+}
+.section.collapsed .sec-arrow { transform: rotate(-90deg); }
+
+/* SECTION BODY */
+.section-body {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 14px 14px;
+  overflow: hidden;
+  max-height: 3000px;
+  transition: max-height 0.35s ease, opacity 0.25s ease;
+  opacity: 1;
+}
+
+.section.collapsed .section-body {
+  max-height: 0;
+  opacity: 0;
+}
+
+/* CHECK ITEM */
+.check-item {
+  padding: 14px 22px;
+  border-bottom: 1px solid var(--surface);
+  cursor: default;
+  transition: background 0.15s;
+}
+.check-item:last-child { border-bottom: none; }
+
+.check-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.check-box {
+  width: 22px;
+  height: 22px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s;
+  background: var(--surface);
+}
+
+.check-item.is-ok { background: var(--green-bg); }
+.check-item.is-ok .check-box { background: var(--green); border-color: var(--green); color: #fff; }
+
+.check-item.is-warn { background: var(--amber-bg); }
+.check-item.is-warn .check-box { background: var(--amber); border-color: var(--amber); color: #fff; }
+
+.check-item.is-flag { background: var(--red-bg); }
+.check-item.is-flag .check-box { background: var(--red); border-color: var(--red); color: #fff; }
+
+.check-content { flex: 1; }
+.check-label { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+.check-item.is-ok .check-label { color: var(--text-muted); text-decoration: line-through; }
+.check-desc { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+.sev-tag {
+  display: inline-block;
+  font-family: var(--mono);
+  font-size: 9px;
+  padding: 1px 6px;
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: middle;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+.sev-h { background: var(--red-bg); color: var(--red); border: 1px solid var(--red-border); }
+.sev-m { background: var(--amber-bg); color: var(--amber); border: 1px solid var(--amber-border); }
+.sev-l { background: var(--blue-bg); color: var(--blue); border: 1px solid var(--blue-border); }
+
+/* ACTION BUTTONS */
+.check-btns {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+  margin-left: 34px;
+}
+
+.btn {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1.5px solid;
+  transition: all 0.15s;
+  letter-spacing: 0.3px;
+  background: transparent;
+}
+
+.btn-ok { color: var(--green); border-color: var(--green-border); }
+.btn-ok:hover, .check-item.is-ok .btn-ok { background: var(--green); color: #fff; border-color: var(--green); }
+
+.btn-warn { color: var(--amber); border-color: var(--amber-border); }
+.btn-warn:hover, .check-item.is-warn .btn-warn { background: var(--amber); color: #fff; border-color: var(--amber); }
+
+.btn-flag { color: var(--red); border-color: var(--red-border); }
+.btn-flag:hover, .check-item.is-flag .btn-flag { background: var(--red); color: #fff; border-color: var(--red); }
+
+/* NOTE */
+.note-area {
+  margin-top: 8px;
+  margin-left: 34px;
+  display: none;
+}
+.note-area.open { display: block; }
+
+.note-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--text);
+  resize: none;
+  height: 52px;
+  transition: border-color 0.2s;
+}
+.note-input:focus { outline: none; border-color: var(--amber); }
+.note-input::placeholder { color: var(--text-dim); }
+
+/* PAIN SCALE */
+.pain-scale {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 10px;
+  margin-left: 34px;
+  flex-wrap: wrap;
+}
+.pain-label { font-size: 11px; color: var(--text-muted); }
+.pain-btns { display: flex; gap: 4px; }
+.pain-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  font-family: var(--mono);
+  font-size: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+  color: var(--text-muted);
+}
+.pain-btn.active {
+  border-color: var(--red);
+  background: var(--red);
+  color: #fff;
+}
+.pain-btn:hover:not(.active) {
+  border-color: var(--text-muted);
+  color: var(--text);
+}
+.pain-val {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--red);
+  min-width: 40px;
+}
+
+/* SUMMARY */
+.summary {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 24px;
+  margin-top: 28px;
+  box-shadow: var(--shadow-lg);
+  display: none;
+  animation: slideUp 0.3s ease;
+}
+.summary.open { display: block; }
+
+.summary-head {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.summary-head::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.flag-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+
+.flag-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+}
+
+.flag-row.is-flag { background: var(--red-bg); border: 1px solid var(--red-border); }
+.flag-row.is-warn { background: var(--amber-bg); border: 1px solid var(--amber-border); }
+
+.priority-box {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 18px;
+  margin-bottom: 16px;
+}
+.priority-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.priority-steps { display: flex; flex-direction: column; gap: 6px; }
+.priority-step {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.step-num {
+  font-family: var(--mono);
+  font-size: 10px;
+  font-weight: 700;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--red);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.copy-btn {
+  width: 100%;
+  padding: 14px;
+  background: var(--text);
+  color: var(--bg);
+  border: none;
+  border-radius: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.copy-btn:hover {
+  background: var(--red);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(192,57,43,0.3);
+}
+
+/* ANIMATIONS */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 580px) {
+  .stats-bar { grid-template-columns: 1fr 1fr; }
+  .legend-grid { grid-template-columns: 1fr; }
+  .check-btns { flex-wrap: wrap; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header">
+  <div class="header-tag">Body Map Checklist</div>
+  <h1>ประเมินอาการก่อนพบแพทย์<br>พี่กิตติ — อายุ 42 ปี</h1>
+  <p>อิงจากจุดปวด 4 โซน + ประวัติสุขภาพ | ตอบทุกข้อให้แพทย์วินิจฉัยได้เร็วขึ้น</p>
+</div>
+
+<!-- ER ALERT -->
+<div class="alert-er" style="animation-delay:0.05s">
+  <div class="alert-er-icon">🚨</div>
+  <div class="alert-er-body">
+    <strong>ไป ER ทันที — ไม่ต้องรอนัด!</strong>
+    เจ็บหน้าอกรุนแรง · แขน/ขาอ่อนแรงกะทันหัน · กลั้นปัสสาวะไม่ได้ · ปวดเอวขวา + ไข้ขึ้น
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-bar">
+  <div class="stat-box stat-total">
+    <div class="stat-num" id="s-total">0</div>
+    <div class="stat-label">ทั้งหมด</div>
+  </div>
+  <div class="stat-box stat-ok">
+    <div class="stat-num" id="s-ok">0</div>
+    <div class="stat-label">✅ ปกติ</div>
+  </div>
+  <div class="stat-box stat-warn">
+    <div class="stat-num" id="s-warn">0</div>
+    <div class="stat-label">⚠️ สังเกต</div>
+  </div>
+  <div class="stat-box stat-danger">
+    <div class="stat-num" id="s-flag">0</div>
+    <div class="stat-label">🚨 แจ้งหมอ</div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-row">
+  <div class="progress-track">
+    <div class="progress-fill" id="prog-fill"></div>
+  </div>
+  <div class="progress-pct" id="prog-pct">0%</div>
+</div>
+
+<!-- BODY MAP LEGEND -->
+<div class="body-legend">
+  <div class="legend-title">🗺 แผนที่โซนปวด (จากภาพ)</div>
+  <div class="legend-grid">
+    <div class="legend-item leg-red">
+      <div class="legend-dot"></div>
+      <span><strong>โซน A</strong> — ไหล่ทั้งสองข้าง (ปวดเมื่อยตลอด)</span>
+    </div>
+    <div class="legend-item leg-amber">
+      <div class="legend-dot"></div>
+      <span><strong>โซน B</strong> — เอวหลัง + เอวขวาปวดจี้ด</span>
+    </div>
+    <div class="legend-item leg-blue">
+      <div class="legend-dot"></div>
+      <span><strong>โซน C</strong> — ต้นขาหลัง + ก้น (ปวดจี้ดจี้ด)</span>
+    </div>
+    <div class="legend-item leg-green">
+      <div class="legend-dot"></div>
+      <span><strong>โซน D</strong> — ระบบภายใน (หัวใจ / ไต / ตับ)</span>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SECTION A: ไหล่ ===== -->
+<div class="section" style="animation-delay:0.2s">
+  <div class="section-head" onclick="toggleSec(this)">
+    <div class="sec-zone zone-red">💆</div>
+    <div class="sec-info">
+      <div class="sec-title">โซน A — ไหล่ทั้งสองข้าง</div>
+      <div class="sec-sub">ปวดเมื่อยตลอด | Trapezius / Cervical Spine</div>
+    </div>
+    <div class="sec-badge badge-red">HIGH</div>
+    <div class="sec-count" id="cnt-0">0/0</div>
+    <div class="sec-arrow">▼</div>
+  </div>
+  <div class="section-body">
+
+    <div class="check-item" data-sec="0" data-label="ปวดไหล่ — ปวดข้างไหน">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดไหล่ — ระบุข้าง <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">ซ้าย / ขวา / ทั้งสองข้าง? ปวดตลอดเวลาหรือเฉพาะท่าทาง?</div>
+        </div>
+      </div>
+      <div class="pain-scale">
+        <span class="pain-label">ระดับปวด:</span>
+        <div class="pain-btns" data-pain="0"></div>
+        <span class="pain-val" id="pv-0"></span>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ปวดน้อย</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ปวดปานกลาง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดมาก</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ซ้าย/ขวา, ปวดแบบไหน, เมื่อไหร่..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="0" data-label="ชาหรืออ่อนแรงที่แขน">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ชาหรืออ่อนแรงที่แขน <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">อาการนี้บ่งชี้ว่าเส้นประสาทคอ (C4-C6) อาจถูกกดทับ — สำคัญมาก</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ชาบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ชาและอ่อนแรง</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ชาบริเวณไหน, นิ้วไหน..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="0" data-label="ก้มเงยหัน ปวดหรือตึงคอ">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ก้มเงยหัน ปวดหรือตึงคอ <span class="sev-tag sev-m">MED</span></div>
+          <div class="check-desc">ช่วยแยกว่าอาการไหล่มาจาก Cervical Spine หรือกล้ามเนื้อ</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ตึงบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดและจำกัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="หันซ้ายขวา / ก้มเงย ทำได้ไหม..."></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SECTION B: เอว ===== -->
+<div class="section" style="animation-delay:0.25s">
+  <div class="section-head" onclick="toggleSec(this)">
+    <div class="sec-zone zone-amber">🔄</div>
+    <div class="sec-info">
+      <div class="sec-title">โซน B — เอวหลัง + เอวขวา</div>
+      <div class="sec-sub">Lumbar Disc / Kidney — ต้องแยกให้ได้</div>
+    </div>
+    <div class="sec-badge badge-amber">CRITICAL</div>
+    <div class="sec-count" id="cnt-1">0/0</div>
+    <div class="sec-arrow">▼</div>
+  </div>
+  <div class="section-body">
+
+    <div class="check-item" data-sec="1" data-label="ปวดเอวหลัง เปลี่ยนท่าแล้วดีขึ้น/แย่ลง">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">เปลี่ยนท่าแล้วปวดเพิ่ม/ลด <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">ท่าไหนทำให้ปวดขึ้น? นั่ง/ยืน/นอน/ก้ม? — ช่วยระบุระดับหมอนรองกระดูก</div>
+        </div>
+      </div>
+      <div class="pain-scale">
+        <span class="pain-label">ระดับปวด:</span>
+        <div class="pain-btns" data-pain="1"></div>
+        <span class="pain-val" id="pv-1"></span>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มีผล</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ปวดขึ้นบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดมากในบางท่า</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ท่าที่ทำให้ปวดขึ้น เช่น นั่งนาน, ก้มหยิบของ..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="1" data-label="ปวดจี้ดข้างเอวขวา">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดจี้ดเอวขวา <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">⚠️ ต้องแยกระหว่าง หมอนรองกระดูก vs นิ่วในไต (จากประวัติดื่มหนัก)</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ เป็นบางครั้ง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดบ่อยและแรง</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ปวดลึก/ตื้น, มีแผ่ลงขาไหม, ปวดพร้อมปัสสาวะผิดปกติไหม..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="1" data-label="สีปัสสาวะผิดปกติ หรือแสบขัด">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ปัสสาวะผิดปกติ <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">สีเข้มเหมือนชา / แสบขัด / ปัสสาวะบ่อยผิดปกติ → ข้อมูลสำคัญมากถ้าปวดเอวขวา</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ปกติ</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ สีเข้มขึ้นบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ผิดปกติชัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="สีปัสสาวะ, มีแสบไหม, บ่อยแค่ไหน..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="1" data-label="มีไข้ร่วมกับปวดเอว">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">มีไข้ร่วมกับปวดเอว <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">🚨 ถ้าใช่ = Kidney Infection → ต้องไป ER ทันที ไม่รอนัด</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มีไข้</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ตัวร้อนบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 มีไข้ชัดเจน</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="อุณหภูมิที่วัดได้, ไข้นานแค่ไหน..."></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SECTION C: ต้นขา/ก้น (Sciatica) ===== -->
+<div class="section" style="animation-delay:0.3s">
+  <div class="section-head" onclick="toggleSec(this)">
+    <div class="sec-zone zone-blue">⚡</div>
+    <div class="sec-info">
+      <div class="sec-title">โซน C — ต้นขาหลัง + ก้น (Sciatica)</div>
+      <div class="sec-sub">เส้นประสาท Sciatic ถูกกด | L4–S1</div>
+    </div>
+    <div class="sec-badge badge-blue">SCIATICA</div>
+    <div class="sec-count" id="cnt-2">0/0</div>
+    <div class="sec-arrow">▼</div>
+  </div>
+  <div class="section-body">
+
+    <div class="check-item" data-sec="2" data-label="ปวดจี้ดจากก้นลงต้นขาหลัง">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดจี้ดจากก้น → ต้นขา → แข้ง <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">Pattern นี้ = Sciatica ชัดเจน ปวดข้างไหน? ลงไปถึงแค่ไหน?</div>
+        </div>
+      </div>
+      <div class="pain-scale">
+        <span class="pain-label">ระดับปวด:</span>
+        <div class="pain-btns" data-pain="2"></div>
+        <span class="pain-val" id="pv-2"></span>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ปวดบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดจี้ดชัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ปวดซ้าย/ขวา, ลงไปถึงไหน, ปวดเวลาไหน..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="2" data-label="ชาหรือเสียวที่ขา เท้า นิ้วเท้า">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ชา / เสียว / มด ที่ขา เท้า หรือนิ้ว <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">ชาตรงไหน? บอกตำแหน่งเส้นประสาทที่ถูกกดได้ → ช่วยแพทย์วินิจฉัยแม่นขึ้น</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ชาบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ชาชัดเจน</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ชาบริเวณไหน, นิ้วไหน, ขาซ้ายหรือขวา..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="2" data-label="ขาอ่อนแรง ก้าวไม่ออก">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ขาอ่อนแรง / ก้าวขาลำบาก <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">🚨 อาการนี้ = เส้นประสาทกดรุนแรง → ต้องรีบตรวจ ห้ามรอ</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ แข็งแรงปกติ</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ รู้สึกอ่อนบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 อ่อนแรงชัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="เดินลำบากไหม, สะดุดบ่อยไหม..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="2" data-label="กลั้นปัสสาวะ/อุจจาระไม่อยู่">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">กลั้นปัสสาวะ / อุจจาระไม่อยู่ <span class="sev-tag sev-h">EMERGENCY</span></div>
+          <div class="check-desc">🚨🚨 Cauda Equina Syndrome — ถ้าใช่ ต้องไป ER ทันที อย่ารอ!</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ กลั้นได้ปกติ</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 กลั้นไม่อยู่</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="รายละเอียด..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="2" data-label="ปวดขาเพิ่มขึ้นตอนไอหรือจาม">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ไอหรือจาม → ปวดขาเพิ่มทันที <span class="sev-tag sev-m">MED</span></div>
+          <div class="check-desc">เป็น Classic Sign ของ Herniated Disc กดเส้นประสาท Sciatic</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่เป็น</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ เป็นบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดมากเลย</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ===== SECTION D: ระบบภายใน ===== -->
+<div class="section" style="animation-delay:0.35s">
+  <div class="section-head" onclick="toggleSec(this)">
+    <div class="sec-zone zone-green">🫀</div>
+    <div class="sec-info">
+      <div class="sec-title">โซน D — ระบบภายใน (หัวใจ / ไต / ตับ)</div>
+      <div class="sec-sub">ต้องตรวจก่อน — ประวัติดื่มหนัก + ปวดร้าวแขน</div>
+    </div>
+    <div class="sec-badge badge-green">INTERNAL</div>
+    <div class="sec-count" id="cnt-3">0/0</div>
+    <div class="sec-arrow">▼</div>
+  </div>
+  <div class="section-body">
+
+    <div class="check-item" data-sec="3" data-label="เจ็บหน้าอก แน่น หรือร้าวลงแขนซ้าย">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">เจ็บหน้าอก / แน่น / ร้าวลงแขนซ้าย <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">🚨 หัวใจ — ผู้ชาย 42 ปี ประวัติดื่มหนัก → ความเสี่ยงสูง ต้องทำ EKG</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ เป็นบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 มีชัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="เกิดตอนออกแรงหรือพัก, บ่อยแค่ไหน, นานแค่ไหน..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="3" data-label="เหนื่อยง่าย ใจสั่น เวลาออกแรง">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">เหนื่อยง่าย / ใจสั่น เวลาออกแรง <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">อาการเหนื่อยเร็วกว่าปกติ หรือหัวใจเต้นผิดจังหวะ → ต้องตรวจ Echo</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ เป็นบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 เป็นบ่อย</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="เหนื่อยเร็วกว่าเมื่อก่อนแค่ไหน..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="3" data-label="ปวดจุกใต้ชายโครงขวา (ตับ)">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ปวดจุกใต้ชายโครงขวา <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">โซนตับ — ประวัติดื่มหนัก → ต้องทำ Liver Function Test + Ultrasound</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ไม่มี</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ จุกบ้าง</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ปวดชัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ปวดตลอดหรือเป็นพักๆ, หลังกินข้าวไหม..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="3" data-label="ตาขาวหรือผิวเหลือง">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">ตาขาวเหลือง / ผิวหนังเหลือง <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">ดูตาขาวในแสงธรรมชาติ — ดีซ่าน = ตับเสียหายมาก ต้องรีบตรวจ</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ ปกติ</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ สงสัย</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 เหลืองชัด</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="บันทึกเพิ่มเติม..."></textarea></div>
+    </div>
+
+    <div class="check-item" data-sec="3" data-label="น้ำหนักลดโดยไม่ตั้งใจ">
+      <div class="check-row">
+        <div class="check-box"></div>
+        <div class="check-content">
+          <div class="check-label">น้ำหนักลดโดยไม่ตั้งใจ <span class="sev-tag sev-h">HIGH</span></div>
+          <div class="check-desc">ลดเกิน 5% ใน 6 เดือน โดยไม่ได้ควบคุม → Red Flag ต้องรีบตรวจ</div>
+        </div>
+      </div>
+      <div class="check-btns">
+        <button class="btn btn-ok" onclick="setStatus(this,'ok')">✓ น้ำหนักปกติ</button>
+        <button class="btn btn-warn" onclick="setStatus(this,'warn')">⚠ ลดนิดหน่อย</button>
+        <button class="btn btn-flag" onclick="setStatus(this,'flag')">🚨 ลดชัดเจน</button>
+      </div>
+      <div class="note-area"><textarea class="note-input" placeholder="ลดไปกี่กิโลในช่วงกี่เดือน..."></textarea></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- SUMMARY -->
+<div class="summary" id="summary">
+  <div class="summary-head">สรุปเพื่อแจ้งแพทย์</div>
+
+  <div class="flag-list" id="flag-list"></div>
+
+  <div class="priority-box">
+    <div class="priority-title">📋 ลำดับการตรวจที่แนะนำ</div>
+    <div class="priority-steps">
+      <div class="priority-step"><div class="step-num">1</div><span>EKG + Echo → ตัดหัวใจก่อน (ปวดร้าวแขน)</span></div>
+      <div class="priority-step"><div class="step-num">2</div><span>MRI Lumbar Spine → Herniated Disc + Sciatica</span></div>
+      <div class="priority-step"><div class="step-num">3</div><span>Ultrasound ไต + Urine → เอวขวาปวดจี้ด</span></div>
+      <div class="priority-step"><div class="step-num">4</div><span>X-Ray ต้นคอ → ไหล่เมื่อยตลอด</span></div>
+      <div class="priority-step"><div class="step-num">5</div><span>LFT + Ultrasound ตับ → ประวัติดื่มหนัก</span></div>
+    </div>
+  </div>
+
+  <button class="copy-btn" onclick="copyReport()">📋 COPY สรุปอาการเพื่อแจ้งแพทย์</button>
+</div>
+
+</div>
+
+<script>
+const itemStates = {};
+const painScores = {};
+let totalItems = 0;
+
+// BUILD PAIN SCALES
+document.querySelectorAll('.pain-btns').forEach(container => {
+  const pid = container.dataset.pain;
+  painScores[pid] = 0;
+  for (let i = 1; i <= 10; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'pain-btn';
+    btn.textContent = i;
+    btn.onclick = (e) => {
+      e.stopPropagation();
+      container.querySelectorAll('.pain-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      painScores[pid] = i;
+      const pv = document.getElementById('pv-' + pid);
+      if (pv) pv.textContent = `${i}/10`;
+    };
+    container.appendChild(btn);
+  }
+});
+
+// INIT ITEMS
+document.querySelectorAll('.check-item').forEach((item, idx) => {
+  itemStates[idx] = 'none';
+  totalItems++;
+});
+document.getElementById('s-total').textContent = totalItems;
+updateSectionCounts();
+
+function setStatus(btn, status) {
+  const item = btn.closest('.check-item');
+  const items = document.querySelectorAll('.check-item');
+  const idx = [...items].indexOf(item);
+  const noteArea = item.querySelector('.note-area');
+
+  if (itemStates[idx] === status) {
+    itemStates[idx] = 'none';
+    item.classList.remove('is-ok','is-warn','is-flag');
+    item.querySelector('.check-box').textContent = '';
+    if (noteArea) noteArea.classList.remove('open');
+  } else {
+    itemStates[idx] = status;
+    item.classList.remove('is-ok','is-warn','is-flag');
+    const box = item.querySelector('.check-box');
+    if (status === 'ok') {
+      item.classList.add('is-ok');
+      box.textContent = '✓';
+      if (noteArea) noteArea.classList.remove('open');
+    } else if (status === 'warn') {
+      item.classList.add('is-warn');
+      box.textContent = '~';
+      if (noteArea) noteArea.classList.add('open');
+    } else if (status === 'flag') {
+      item.classList.add('is-flag');
+      box.textContent = '!';
+      if (noteArea) noteArea.classList.add('open');
+    }
+  }
+
+  updateStats();
+  updateSectionCounts();
+  updateSummary();
+}
+
+function updateStats() {
+  const vals = Object.values(itemStates);
+  const ok = vals.filter(v => v === 'ok').length;
+  const warn = vals.filter(v => v === 'warn').length;
+  const flag = vals.filter(v => v === 'flag').length;
+  const answered = ok + warn + flag;
+  document.getElementById('s-ok').textContent = ok;
+  document.getElementById('s-warn').textContent = warn;
+  document.getElementById('s-flag').textContent = flag;
+  const pct = Math.round(answered / totalItems * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-pct').textContent = pct + '%';
+}
+
+function updateSectionCounts() {
+  document.querySelectorAll('.section').forEach((sec, si) => {
+    const items = sec.querySelectorAll('.check-item');
+    const allItems = document.querySelectorAll('.check-item');
+    const answered = [...items].filter(item => {
+      const idx = [...allItems].indexOf(item);
+      return itemStates[idx] !== 'none';
+    }).length;
+    const cnt = document.getElementById('cnt-' + si);
+    if (cnt) cnt.textContent = answered + '/' + items.length;
+  });
+}
+
+function updateSummary() {
+  const allItems = document.querySelectorAll('.check-item');
+  const flags = Object.entries(itemStates)
+    .filter(([,s]) => s === 'flag')
+    .map(([idx]) => allItems[idx]?.dataset?.label || '');
+  const warns = Object.entries(itemStates)
+    .filter(([,s]) => s === 'warn')
+    .map(([idx]) => allItems[idx]?.dataset?.label || '');
+
+  const summary = document.getElementById('summary');
+  const flagList = document.getElementById('flag-list');
+
+  if (flags.length || warns.length) {
+    summary.classList.add('open');
+    let html = '';
+    flags.forEach(l => {
+      html += `<div class="flag-row is-flag"><span>🚨</span><span>${l}</span></div>`;
+    });
+    warns.forEach(l => {
+      html += `<div class="flag-row is-warn"><span>⚠️</span><span>${l}</span></div>`;
+    });
+    flagList.innerHTML = html;
+  } else {
+    summary.classList.remove('open');
+  }
+}
+
+function toggleSec(head) {
+  head.parentElement.classList.toggle('collapsed');
+}
+
+function copyReport() {
+  const allItems = document.querySelectorAll('.check-item');
+  const flags = Object.entries(itemStates).filter(([,s]) => s === 'flag').map(([i]) => `🚨 ${allItems[i]?.dataset?.label}`);
+  const warns = Object.entries(itemStates).filter(([,s]) => s === 'warn').map(([i]) => `⚠️ ${allItems[i]?.dataset?.label}`);
+  const oks = Object.entries(itemStates).filter(([,s]) => s === 'ok').map(([i]) => `✅ ${allItems[i]?.dataset?.label}`);
+
+  const notes = [...document.querySelectorAll('.note-input')]
+    .map(n => n.value.trim()).filter(Boolean).map(n => `  📝 ${n}`);
+
+  let txt = `🩺 สรุปอาการ — พี่กิตติ อายุ 42 ปี\n${'─'.repeat(40)}\n`;
+  if (flags.length) txt += `\n[🚨 ต้องแจ้งแพทย์ก่อน]\n${flags.join('\n')}\n`;
+  if (warns.length) txt += `\n[⚠️ สังเกตเพิ่มเติม]\n${warns.join('\n')}\n`;
+  if (oks.length) txt += `\n[✅ ไม่มีอาการ]\n${oks.join('\n')}\n`;
+  if (notes.length) txt += `\n[📝 บันทึก]\n${notes.join('\n')}\n`;
+  txt += `\n[📋 ลำดับตรวจ]\n1. EKG + Echo\n2. MRI Lumbar Spine\n3. Ultrasound ไต + Urine\n4. X-Ray ต้นคอ\n5. LFT + Ultrasound ตับ`;
+  txt += `\n${'─'.repeat(40)}\n${new Date().toLocaleDateString('th-TH', {year:'numeric',month:'long',day:'numeric'})}`;
+
+  navigator.clipboard.writeText(txt).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = '✅ COPIED เรียบร้อย!';
+    btn.style.background = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = '📋 COPY สรุปอาการเพื่อแจ้งแพทย์';
+      btn.style.background = 'var(--text)';
+    }, 2500);
+  });
+}
+</script>
+</body>
+</html>
